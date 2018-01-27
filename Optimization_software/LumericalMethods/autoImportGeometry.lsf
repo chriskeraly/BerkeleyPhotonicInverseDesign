@@ -1,0 +1,82 @@
+matlab("addpath('LumericalMethods')");
+
+matlab("load autoImportGeometry.mat");
+matlabget(eps,freq,baseFile,velocityMon,queueName);
+
+load(baseFile);
+
+setglobalsource('frequency start',freq);
+setglobalsource('frequency stop',freq);
+
+select('FDTD');
+sim3d = get('dimension')=='3D';
+
+if(getnamednumber(velocityMon) == 0) {
+	matlab("lumError = 'ERROR: Could not find appropriate Velocity monitor'; done=1;");
+	matlab("save('autoImportGeometry.mat','done','lumError');");
+	exit(2);
+}
+select(velocityMon);
+if(sim3d==0) {
+	set('monitor type','2D Z-normal');
+}
+mon_type=get('monitor type');
+vel_x=get('x');
+vel_x_span=get('x span');
+vel_x_min = vel_x - .5*vel_x_span;
+vel_y=get('y');
+vel_y_span=get('y span');
+vel_y_min = vel_y - .5*vel_y_span;
+vel_z=get('z');
+vel_z_span=get('z span');
+
+if(getnamednumber(velocityMon+'_index') == 0) {
+addindex;
+set('name',velocityMon+'_index');
+set('monitor type','2D Z-normal');
+set('x',vel_x);
+set('x span',vel_x_span);
+set('y',vel_y);
+set('y span',vel_y_span);
+set('z',vel_z);
+set('override global monitor settings',0);
+}
+
+select('FDTD');
+set('simulation time',1e-15);
+set('dimension','2D');
+#set('x',vel_x);
+#set('x span',vel_x_span);
+#set('y',vel_y);
+#set('y span',vel_y_span);
+set('z',vel_z);
+
+selectpartial('Source'); delete;
+
+runFile='autoImport.fsp';
+save(runFile);
+
+runparallel;
+
+if(havedata(velocityMon+'_index','index_x')) {
+	epsGrid=getdata(velocityMon+'_index','index_x')^2;
+} else {
+	epsGrid=getdata(velocityMon+'_index','index_z')^2;
+}
+x=getdata(velocityMon+'_index','x');
+y=getdata(velocityMon+'_index','y');
+
+matlab("flag = 1*ischar(eps);");
+matlabget(flag);
+if(flag) {
+	eps = ( getfdtdindex(eps, freq, freq, freq) )^2;
+}
+
+matlabsavelegacy('var',eps,epsGrid,x,y, vel_x_min, vel_x_span, vel_y_min, vel_y_span, vel_z, vel_z_span);
+matlab("load('var','eps','epsGrid','x','y','vel_x_min','vel_x_span','vel_y_min','vel_y_span','vel_z','vel_z_span');");
+matlab("epsGrid = epsGrid.';
+	figure; imagesc(x,y,real(eps)); axis('equal');
+	done=1; lumError='';
+	save('autoImportGeometry.mat','done','lumError','eps','epsGrid','x','y','vel_x_min','vel_x_span','vel_y_min','vel_y_span','vel_z','vel_z_span','-v7.3');
+");
+exit(2);

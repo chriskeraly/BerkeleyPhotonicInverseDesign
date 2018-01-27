@@ -1,0 +1,23 @@
+mon='modeOut';
+
+Ex = getdata(mon,'Ex');
+Ey = getdata(mon,'Ey');
+Ez = getdata(mon,'Ez');
+Hx = getdata(mon,'Hx');
+Hy = getdata(mon,'Hy');
+Hz = getdata(mon,'Hz');
+x = getdata(mon,'x');
+y = getdata(mon,'y');
+z = getdata(mon,'z');
+
+surface_normal=getdata(mon,'surface_normal');
+dimension=getdata(mon,'dimension');
+f=getdata(mon,'f');
+
+matlab("clear");
+matlabsavelegacy('var',x,y,z,Ex,Ey,Ez,Hx,Hy,Hz,dimension,surface_normal,f);
+matlab("load('var','x','y','z','Ex','Ey','Ez','Hx','Hy','Hz','dimension','surface_normal','f')");
+matlab("grid = {x,y,z}; Emode = {Ex,Ey,Ez}; Hmode = {Hx,Hy,Hz};");
+matlab("modeData={grid,Emode,Hmode,dimension,surface_normal,f};");
+
+matlab("save('base2D_SiPh_25_75_splitter_modeData.mat','modeData','-v7.3');");

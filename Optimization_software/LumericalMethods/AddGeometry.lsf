@@ -1,0 +1,106 @@
+matlab("addpath('LumericalMethods')");
+
+matlab("load('SetupBaseLum.mat');");
+matlabget(baseFile,shapeType);
+
+matlab("load('AddGeometry.mat');");
+matlab("geo_type = geoData.geo_type;");
+matlabget(geo_type);
+
+load(baseFile);
+
+selectpartial('Initial'); delete;
+
+if(shapeType == 'Extruded') { 
+    if(geo_type == 'binary') {
+	matlab("
+		geo_n = geoData.geo_n;
+		geo_x = geoData.geo_x;
+		geo_y = geoData.geo_y;
+		geo_z = geoData.geo_z;
+		xArr = geoData.xArr;
+		yArr = geoData.yArr;
+		blockSizeArr = geoData.blockSizeArr;
+		geo_nClad = geoData.geo_nClad;
+		geo_mat = geoData.geo_mat;
+		geo_matClad = geoData.geo_matClad;
+		geo_xspan = geoData.geo_xspan;
+		geo_yspan = geoData.geo_yspan;
+		geo_zspan = geoData.geo_zspan;
+	");
+	matlabget(geo_n, geo_x, geo_y, geo_z, xArr, yArr, blockSizeArr, geo_nClad, geo_mat, geo_matClad, geo_xspan, geo_yspan, geo_zspan);
+	feval('LumericalMethods/AddBinaryImportLum.lsf');
+	matlab("clear geo_n geo_x geo_y geo_z");
+    } else {
+        matlab("
+		geo_n = geoData.geo_n;
+		geo_x = geoData.geo_x;
+		geo_y = geoData.geo_y;
+		geo_z = geoData.geo_z;
+        ");
+        matlabget( geo_n, geo_x, geo_y, geo_z);
+        feval('LumericalMethods/AddFreeFormLum.lsf');
+    }
+} 
+
+#if(shapeType == 'FourierSurface') {
+#	matlab("
+#		geo_surface = geoData.geo_surface;
+#		geo_x = geoData.geo_x;
+#		geo_xspan = geoData.geo_xspan;
+#		geo_y = geoData.geo_y;
+#		geo_yspan = geoData.geo_yspan;
+#		geo_z = geoData.geo_z;
+#		geo_zspan = geoData.geo_zspan;
+#		geo_n = geoData.geo_n;
+#       		geo_mat = geoData.geo_mat;
+#        		geo_nClad = geoData.geo_nClad;
+#       		geo_matClad = geoData.geo_matClad;
+#	");
+#	matlabget(geo_surface, geo_x, geo_xspan, geo_y, geo_yspan, geo_z, geo_zspan, geo_n, geo_mat, geo_nClad, geo_matClad);
+#	feval('LumericalMethods/AddSurfaceLum.lsf');
+#	matlab("clear geo_surface geo_x geo_xspan geo_y geo_yspan geo_z geo_zspan geo_n geo_mat geo_nClad geo_matClad");
+#}
+
+#if(shapeType == 'FreeForm_imageimport') { 
+#	matlab("
+#		geo_image = geoData.geo_image;
+#		geo_n = geoData.geo_n;
+#	       geo_mat = geoData.geo_mat;
+#		geo_x = geoData.geo_x;
+#		geo_xspan = geoData.geo_xspan;
+#		geo_y = geoData.geo_y;
+#		geo_yspan = geoData.geo_yspan;
+#		geo_z = geoData.geo_z;
+#		geo_zspan = geoData.geo_zspan;
+#	");
+#	matlabget( geo_n, geo_x, geo_y, geo_z);
+#	feval('LumericalMethods/AddFreeFormLum.lsf');
+#} 
+
+#if(shapeType == 'LevelSet') {
+#	matlab("
+#		ls = geoData.ls;
+#		xy = geoData.xy;
+#		startEnd = geoData.startEnd;
+#	");
+#	matlabget(xy, startEnd, epsLS);
+#	feval('LumericalMethods/AddLSPolyLum.lsf');
+#	matlab("clear xy startEnd epsLS");
+#}
+
+#if(shapeType == 'Polygon') {
+#	matlab("
+#		dataMatrix = geoData; 
+#		numShapes = size(dataMatrix,1);
+#	");
+#	matlabget(numShapes);
+#	feval('LumericalMethods/AddPolyLum.lsf'); 
+#	matlab("clear dataMatrix numShapes");
+#}
+
+save('currentIterGeo.fsp');
+matlab("done=1; lumError=''; save('AddGeometry.mat','done','lumError','-v7.3');");
+exit(2);
+
+# ADD THIS TO LEVELSET CODE: [ls,xy,startEnd] = opt.geo.createPolygons; xy = IntToExt( opt.geo, xy, ones(size(xy,1),1)*[1,2], ones(size(xy)) );

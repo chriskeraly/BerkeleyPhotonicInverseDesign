@@ -1,0 +1,30 @@
+matlab("clear");
+matlab("load('SetupBaseLum.mat');");
+matlabget(baseFile,shapeType);
+
+matlab("load SetupMaterials.mat");
+matlab("matLen = length(matArr); freqLen = length(freqVec);");
+matlabget(matLen, freqVec, freqLen);
+
+load(baseFile);
+
+for (epsCnt=1:matLen) {
+for (f=1:freqLen) {
+	matlabsavelegacy('var',epsCnt,f);
+    	matlab("load('var','epsCnt','f')");
+	matlab("mat = matArr{epsCnt}; flag = 1*ischar(mat);");
+	matlabget(mat, flag);
+	if(flag) {
+		eps = ( getfdtdindex(mat, freqVec(f), freqVec(1), freqVec(freqLen)) )^2;
+	} else {
+		eps = mat;
+	}
+	matlabsavelegacy('var',eps);
+    	matlab("load('var','eps')");
+	matlab("epsArr{epsCnt}(f) = eps;");
+}
+}
+
+matlab("done=1; lumError='';");
+matlab("save('SetupMaterials.mat','done','lumError','epsArr','-v7.3');");
+exit(2);

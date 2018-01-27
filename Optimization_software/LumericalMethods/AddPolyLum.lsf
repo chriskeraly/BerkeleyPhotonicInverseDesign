@@ -1,0 +1,40 @@
+
+if(numShapes>0) {
+	for(i = 1:numShapes) {
+    matlabsavelegacy('var',i);
+    matlab("load('var','i')");
+	matlab("
+            type = dataMatrix{i,1};
+            eps = dataMatrix{i,2};
+	 isMatName = 1*ischar(eps);
+            coord = dataMatrix{i,3};
+            z0 = dataMatrix{i,4};
+            zSpan = dataMatrix{i,5};
+        	");
+        matlabget(type, eps, isMatName, coord, z0, zSpan);
+		if( type == 1 ) {
+			addrect;
+			set('name','rectangle'+num2str(i));
+			set('x',coord(1));
+			set('y',coord(2));
+			set('x span',coord(3));
+			set('y span',coord(4));
+		} else { 
+			addcircle;
+			set('name','ellipse'+num2str(i));
+			set('make ellipsoid',1);
+			set('x',coord(1));
+			set('y',coord(2));
+			set('radius',coord(3));
+			set('radius 2',coord(4));
+		}
+		if( isMatName ) {
+            set('material',eps);
+        } else {
+            set("material","<Object defined dielectric>");
+            set('index',sqrt(eps));
+        }
+        set('z',z0);
+		set('z span',zSpan);
+	}
+}

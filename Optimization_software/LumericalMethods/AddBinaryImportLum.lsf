@@ -1,0 +1,47 @@
+redrawoff;
+
+addrect;
+set("x", geo_x); set("x span", geo_xspan);
+if(length(yArr)==1) {
+    #2D geometry
+    set("y", geo_z); set("y span", geo_zspan);
+    set("z", 0); set("z span", 100e-9);
+} else {
+    set("y", geo_y); set("y span", geo_yspan);
+    set("z", geo_z); set("z span", geo_zspan);
+}
+set("name", "rect_clad");
+if(geo_nClad==0) {
+	set("material",geo_matClad);
+} else {
+	set("material","<Object defined dielectric>");
+	set("index", geo_nClad);
+}
+set("override mesh order from material database",1);
+set("mesh order",3);
+
+len = length(xArr);
+if(len>0) {
+for (i=1:len){
+	addrect;
+	set("x",xArr(i)); set("x span",blockSizeArr(i));
+    if(length(yArr)==1) {
+        set("y",geo_z); set("y span",geo_zspan);
+        set("z",0); set("z span",100e-9);
+    } else {
+        set("y",yArr(i)); set("y span",blockSizeArr(i));
+        set("z",geo_z); set("z span",geo_zspan);
+    }
+	set("name","rect_"+num2str(i));
+	if(geo_n==0) {
+		set("material",geo_mat);
+	} else {
+		set("material","<Object defined dielectric>");
+		set("index", geo_n);
+	}
+	set("override mesh order from material database",1);
+	set("mesh order",2);
+}
+}
+
+redrawon;

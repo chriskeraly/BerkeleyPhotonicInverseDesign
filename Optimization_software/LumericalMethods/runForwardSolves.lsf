@@ -1,0 +1,51 @@
+matlab("addpath('LumericalMethods')");
+
+matlab("load('SetupBaseLum.mat')");
+matlabget(baseFile,queueName,velocityMon,indexMon,userSim,shapeType,sim3d,newRun,numMon);
+
+matlab("load('runForwardSolves.mat')");
+matlabget(j,k,first,iter,freqVec,runUserSim,freqInd,numFreq);
+
+# Run a forward simulation given matlab data
+load('currentIterGeo.fsp');
+
+setglobalsource('frequency start',freqVec(1));
+setglobalsource('frequency stop',freqVec(numFreq));
+if(freqVec(1)>freqVec(numFreq)){
+    matlab("lumError = 'ERROR: Frequency range must be in increasing order'; done=1;");
+    matlab("save('runForwardSolves.mat','done','lumError');");
+    exit(2);
+}
+setglobalmonitor('use source limits',1);
+setglobalmonitor('frequency points',numFreq);
+
+# Alter geometry according to lsf file stored in variable userSim
+if(runUserSim) {
+    userSimNo = k;
+    feval(userSim);
+}
+
+runFile = 'Forward_'+num2str(1)+num2str(j)+num2str(k)+'_iter'+num2str(iter)+'.fsp';
+#runFile = 'Forward_'+num2str(1)+num2str(j)+num2str(k)+'.fsp';
+if(~first & newRun) {
+    if(queueName == 'local') {
+        save(runFile); runparallel;
+    } else {
+        save(runFile); 
+        matlabsavelegacy('var',runFile);
+        matlab("load('var','runFile')");
+        matlab("runParallelLum(runFile,queueName);");
+        load(runFile);
+    }
+} else {
+    load("Forward_111_iter0.fsp");
+}
+
+feval('LumericalMethods/GetMeritDataLum.lsf'); # Get merit data from Lumerical
+
+EAflag = 0;
+feval('LumericalMethods/GetVelDataLum.lsf');  # Get velocity data from Lumerical
+
+matlab("done=1; lumError='';");
+matlab("save('runForwardSolves.mat','done','lumError','iter','merit_E','merit_H','merit_pos','merit_eps','merit_eps_pos','normParam','EField','pos_E','epsReal','pos_eps','-v7.3');");
+exit(2);

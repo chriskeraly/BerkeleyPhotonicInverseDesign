@@ -1,0 +1,24 @@
+REQUIREMENTS
+MATLAB 2012b
+Lumerical FDTD Solutions Version 8
+Optional: pbs_server to manage a cluster job queue
+
+INSTALLATION INSTRUCTIONS
+1. Copy all Photonic Inverse Design files to a Windows/Linux machine
+2. Edit runOpt_params.m
+   lumerical = /path/to/lumerical/fdtd-solutions;
+          On Linux, this may look like 
+          lumerical = '/data/lumerical/fdtd/bin/CAD';
+          On Windows, this may look like
+          (single and double quotes needed because of spaces in the file
+          path)
+          lumerical = '"C:\Program Files\Lumerical\FDTD\bin\fdtd-solutions.exe"';
+   queueName = 'local' or a pbs_server queue;
+          To run Lumerical simulations on the local machine:
+          queueName = 'local';
+          To run Lumerical simulations as a job in a pbs_server queue:
+          (edit runParallelLum.m to customize the job submission process)
+          queueName = 'queueName';
+3. Open MATLAB. Navigate to /path/to/PhotonicInverseDesign/. 'runOpt' begins an optimization.
+
+% Last Updated 07/03/2013

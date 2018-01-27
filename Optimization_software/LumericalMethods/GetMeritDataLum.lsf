@@ -1,0 +1,76 @@
+
+for(i = 1:numMon) {
+	matlabsavelegacy('var',i);
+    matlab("load('var','i')");
+	matlab('mon = monNames{i};');
+	matlabget(mon);
+	
+	Ex = getdata(mon,'Ex');
+	Ey = getdata(mon,'Ey');
+	Ez = getdata(mon,'Ez');
+	Hx = getdata(mon,'Hx');
+	Hy = getdata(mon,'Hy');
+	Hz = getdata(mon,'Hz');
+	
+	f = getdata(mon,'f');
+	
+	x = getdata(mon,'x');
+	y = getdata(mon,'y');
+	z = getdata(mon,'z');
+	
+	normParam = sourcepower(f);
+	
+	if(getnamednumber(mon+'_index')) {
+		mon = mon+'_index';
+		x_eps = getdata(mon,'x');
+		y_eps = getdata(mon,'y');
+		z_eps = getdata(mon,'z');
+	
+		if(sim3d){
+			epsx = getdata(mon,'index_x')^2;
+			epsy = getdata(mon,'index_y')^2;
+			epsz = getdata(mon,'index_z')^2;
+		} else {
+			if(havedata(mon,'index_x')) {
+			epsx = getdata(mon,'index_x')^2;
+			epsy = getdata(mon,'index_y')^2;
+			epsz = 0*epsy;
+			} else {
+			epsz = getdata(mon,'index_z')^2;
+			epsy = 0*epsz;
+			epsx = 0*epsz;
+			}
+		}
+	} else {
+		x_eps = 0;
+		y_eps = 0;
+		z_eps = 0;
+		epsx = 0;
+		epsy = 0;
+		epsz = 0;
+	}
+
+	matlabsavelegacy('var',f,Ex,Ey,Ez,Hx,Hy,Hz,x,y,z,normParam,x_eps,y_eps,z_eps,epsx,epsy,epsz);
+    matlab("load('var')");
+	
+	matlab("
+		dim = size(Ex);
+		monDim = sum(dim>1) - (length(f)>1);
+		%if((length(dim)==4) || (monDim==3)), p = [2 1 3 4]; else p = [2 1 3];	end
+		p = [2 1 3 4];
+		Ex = permuteLumData(Ex, p, dim);
+		Ey = permuteLumData(Ey, p, dim);
+		Ez = permuteLumData(Ez, p, dim);
+		Hx = permuteLumData(Hx, p, dim);
+		Hy = permuteLumData(Hy, p, dim);
+		Hz = permuteLumData(Hz, p, dim);
+		epsx = permuteLumData(epsx, p, dim);
+		epsy = permuteLumData(epsy, p, dim);
+		epsz = permuteLumData(epsz, p, dim);
+		merit_E{i} = [Ex,Ey,Ez];
+		merit_H{i} = [Hx,Hy,Hz];
+		merit_pos{i} = {x,y,z};
+		merit_eps{i} = [epsx,epsy,epsz];
+		merit_eps_pos{i} = {x_eps,y_eps,z_eps};
+	");
+}

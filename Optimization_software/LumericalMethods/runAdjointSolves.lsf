@@ -1,0 +1,57 @@
+matlab("addpath('LumericalMethods')");
+	
+matlab("load('SetupBaseLum.mat')");
+matlabget(baseFile,queueName,velocityMon,indexMon,userSim,shapeType,sim3d,newRun,numMon);
+
+matlab("load('runAdjointSolves.mat')");
+matlabget(i,j,k,first,iter,approxFreq,freqInd,freqVec,monInd,runUserSim,numFreq);
+				
+if(iter==0) {
+    runFile = 'Adjoint_'+num2str(i)+num2str(j)+num2str(k)+'_iter0.fsp';
+} else {
+    runFile = 'Adjoint_'+num2str(i)+num2str(j)+num2str(k)+'.fsp';
+}
+
+load('currentIterGeo.fsp');
+
+selectpartial('Source'); delete;
+setglobalmonitor('frequency points',numFreq);
+setglobalmonitor('use source limits',0);
+setglobalmonitor('minimum frequency',min(freqVec));
+setglobalmonitor('maximum frequency',max(freqVec));
+
+if(runUserSim) { userSimNo = k; feval(userSim); } # Alter geometry according to lsf file stored in variable userSim
+
+if(approxFreq) { # Add dipole sources to Lumerical
+    AddDipoleLumApprox;
+} else {
+    AddDipoleLum; 
+}
+
+if(sourceCnt>0) {
+    if(~first & newRun) {
+        if(queueName == 'local') {
+            save(runFile); runparallel;
+        } else {
+            save(runFile); 
+            matlabsavelegacy('var',runFile, queueName);
+            matlab("load('var','runFile','queueName')");
+            matlab("runParallelLum(runFile,queueName);");
+            load(runFile);
+        }
+    } else {
+        load('Adjoint_111_iter0.fsp');
+        matlab("first = 0;"); matlabget(first);
+    }
+
+    EAflag = 1;
+    feval('LumericalMethods/GetVelDataLum.lsf');  # Get velocity data from Lumerical
+    
+    matlab("done=1; lumError='';");
+    matlab("save('runAdjointSolves.mat','done','lumError','iter','sourceCnt','EField','pos_E','epsReal','pos_eps','-v7.3');");
+} else {
+    matlab("done=1; lumError='';");
+    matlab("save('runAdjointSolves.mat','done','lumError','iter','sourceCnt','-v7.3')");
+}
+
+exit(2);

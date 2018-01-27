@@ -1,0 +1,12 @@
+
+addimport;
+if(length(geo_z)==1) {
+	matlab("
+		geo_n = repmat(geo_n, [1 1 11]);
+		geo_dx = geo_x(2)-geo_x(1);
+		geo_z = geo_z-5*geo_dx : geo_dx : geo_z+5*geo_dx;
+	");
+	matlabget(geo_n,geo_z);
+}
+importnk2(geo_n, transpose(geo_x), geo_y, geo_z);
+set('detail',.92);

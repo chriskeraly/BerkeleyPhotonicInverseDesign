@@ -1,0 +1,61 @@
+
+x_E = getdata(velocityMon,'x');
+y_E = getdata(velocityMon,'y');
+z_E = getdata(velocityMon,'z');
+
+x_eps = getdata(indexMon,'x');
+y_eps = getdata(indexMon,'y');
+z_eps = getdata(indexMon,'z');
+
+Ex = getdata(velocityMon,'Ex');
+Ey = getdata(velocityMon,'Ey'); 
+Ez = getdata(velocityMon,'Ez');
+
+if(sim3d){
+	epsx = getdata(indexMon,'index_x')^2;
+	epsy = getdata(indexMon,'index_y')^2;
+	epsz = getdata(indexMon,'index_z')^2;
+} else {
+	if(havedata(indexMon,'index_x')) {
+		epsx = getdata(indexMon,'index_x')^2;
+		epsy = getdata(indexMon,'index_y')^2;
+		epsz = 0*epsy;
+	} else {
+		epsz = getdata(indexMon,'index_z')^2;
+		epsy = 0*epsz;
+		epsx = 0*epsz;
+	}
+}
+
+if(EAflag) {
+	if(baseAmpP) {
+		Ex = Ex*dipNorm/baseAmpP;
+		Ey = Ey*dipNorm/baseAmpP;
+		Ez = Ez*dipNorm/baseAmpP;
+	} else {
+		Ex = Ex*dipNorm/baseAmpM;
+		Ey = Ey*dipNorm/baseAmpM;
+		Ez = Ez*dipNorm/baseAmpM;
+	}
+}
+
+matlabsavelegacy('var',x_E,y_E,z_E,x_eps,y_eps,z_eps,Ex,Ey,Ez,epsx,epsy,epsz);
+matlab("load('var','x_E','y_E','z_E','x_eps','y_eps','z_eps','Ex','Ey','Ez','epsx','epsy','epsz')");
+
+# Combine fields and (if testing) plot
+matlab(" 
+	dim = size(Ex);
+	monDim = sum(dim>1) - (length(freqInd)>1);
+	%if((length(dim)==4) || (monDim==3)), p = [2 1 3 4]; else p = [2 1 3];	end
+	p = [2 1 3 4];
+	Ex = permuteLumData(Ex, p, dim);
+	Ey = permuteLumData(Ey, p, dim);
+	Ez = permuteLumData(Ez, p, dim);
+	epsx = permuteLumData(epsx, p, dim);
+	epsy = permuteLumData(epsy, p, dim);
+	epsz = permuteLumData(epsz, p, dim);
+	EField = [Ex,Ey,Ez]; 
+	epsReal = [epsx,epsy,epsz];
+	pos_E = {x_E,y_E,z_E};
+	pos_eps = {x_eps,y_eps,z_eps};
+");

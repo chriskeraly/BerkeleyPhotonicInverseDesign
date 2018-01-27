@@ -1,0 +1,147 @@
+
+# Should generalize to 3d (needs testing)
+
+baseNorm = 1;
+baseAmpP = 0;
+baseAmpM = 0;
+maxP = 0;
+maxM = 0;
+matlabsavelegacy('var',maxP,maxM);
+matlab("load('var','maxP','maxM')");
+
+redrawoff;
+
+matlab('sourceCnt = 0; dipNorm = 0;');
+matlab('[Nm,Nf] = size(currDipoles);');
+matlabget(Nm,Nf);
+for(moncnt = 1:Nm) {
+	for(freqcnt = 1:Nf) { # Is this index used?
+		matlabsavelegacy('var',moncnt,freqcnt);
+        matlab("load('var','moncnt','freqcnt')");
+		matlab('monWeight = currWeights(moncnt,freqcnt);');
+		matlabget(monWeight);
+	
+		if( abs(monWeight)>0 ) {
+			matlab("
+				xdip = dipolePos{monInd(moncnt)}{1}; 
+				ydip = dipolePos{monInd(moncnt)}{2}; 
+				zdip = dipolePos{monInd(moncnt)}{3}; 
+				px = monWeight * currDipoles{moncnt,freqcnt}{1};
+				py = monWeight * currDipoles{moncnt,freqcnt}{2}; 
+				pz = monWeight * currDipoles{moncnt,freqcnt}{3}; 		
+				mx = monWeight * currDipoles{moncnt,freqcnt}{4};
+				my = monWeight * currDipoles{moncnt,freqcnt}{5}; 
+				mz = monWeight * currDipoles{moncnt,freqcnt}{6}; 
+				
+                if( max(maxP,maxM) == 0 )
+                        maxP = max( [max(max(max(abs(px)))),max(max(max(abs(py)))),max(max(max(abs(pz))))] );
+                        maxM = max( [max(max(max(abs(mx)))),max(max(max(abs(my)))),max(max(max(abs(mz))))] );
+                end
+
+				if( max(maxP,maxM) > 0 ) 
+					sourceCnt = sourceCnt + 1;
+					if(sourceCnt==1)
+						if(maxP>0)
+							dipNorm = maxP;
+						else
+							dipNorm = maxM;
+						end
+					end
+				end
+            		");
+			matlabget(xdip, ydip, zdip, px, py, pz, mx, my, mz, maxP, maxM, dipNorm, sourceCnt);
+			
+			# order: px (TM), py (TM), pz (TE), mx (TE), my (TE), mz (TM)
+			# Their TE is our TM and vice versa!!
+			for(dipmain=1:6) {
+				cnt = 0;
+				if(dipmain<4) 					 { dipoleType = 'Electric dipole'; } else { dipoleType = 'Magnetic dipole'; }
+				if( (dipmain<3) | (dipmain==6) ) { dipolePol = 'TE'; } 				 else { dipolePol = 'TM'; }
+				if( mod(dipmain,3)==1 ) 		 { theta = 90; phi = 0; }
+				if( mod(dipmain,3)==2 )			 { theta = 90; phi = 90; }
+				if (mod(dipmain,3)==0 ) 		 { theta = 0; phi = 0; }
+				if(dipmain==1) { dipLabel = 'px'; dipAmp = px/dipNorm; }
+				if(dipmain==2) { dipLabel = 'py'; dipAmp = py/dipNorm; }
+				if(dipmain==3) { dipLabel = 'pz'; dipAmp = pz/dipNorm; }
+				if(dipmain==4) { dipLabel = 'mx'; dipAmp = mx/dipNorm; }
+				if(dipmain==5) { dipLabel = 'my'; dipAmp = my/dipNorm; }
+				if(dipmain==6) { dipLabel = 'mz'; dipAmp = mz/dipNorm; }
+				
+				if( max(abs(dipAmp)) ) { # max. dipole > 0
+					for(p = 1:length(xdip) ) {
+						xp = xdip(p);
+						for(q = 1:length(ydip)) {
+							yq = ydip(q);
+							for(r = 1:length(zdip)) {
+								zr = zdip(r);
+								if(length(zdip)>1){
+									dipAmp_iter = dipAmp(p,q,r);
+								} else {
+									if(length(xdip)>1) {
+										dipAmp_iter = dipAmp(p,q);
+									} else {
+										dipAmp_iter = dipAmp(q);
+									}
+								}
+
+								if(abs(dipAmp_iter)) {
+								
+								cnt = cnt + 1;
+								if(cnt==1) {
+									
+									adddipole;
+									set('x',xp);
+									set('y',yq);
+									if(sim3d) { 
+										set('z',zr); 
+									}
+									set('center frequency',freqVec(freqcnt));
+									set('frequency span',0);
+									set('record local field',0);
+									set('dipole type',dipoleType);
+									baseAmp = get('base amplitude');
+									
+									#if(sourceCnt==1) {
+										if(dipmain<4) { # Electric Dipole
+											baseAmpP=baseAmp;
+											baseNorm=1;
+										} else { # Magnetic Dipole
+											baseAmpM=baseAmp;
+											if(baseAmpP>0) {
+												baseNorm=baseAmpP/baseAmpM;
+											} else {
+												baseNorm=1;
+                                            							}
+										}
+									#}
+									set('theta',theta);
+									set('phi',phi);
+								} else {
+									if(sim3d) {
+										copy(xp-lastx,yq-lasty,zr-lastz);
+									} else {
+										copy(xp-lastx,yq-lasty);
+									}
+								}
+								
+								set('amplitude',abs(dipAmp_iter)*baseNorm);
+								set('phase',180*angle(dipAmp_iter)/pi);
+								set('name','dipole'+num2str(cnt)+"_"+dipLabel+"_"+num2str(moncnt));
+								
+								lastx = xp;
+								lasty = yq;
+								lastz = zr;
+								}
+							}
+						}
+					}
+				
+					#?"  Including dipole set: " + num2str(dipmain) + "  for monitor: " + num2str(monInd(moncnt)) + " at frequency: " + num2str(freqVec(freqcnt));
+				
+				} 
+			}
+		}
+	}
+}
+
+matlabget(sourceCnt);

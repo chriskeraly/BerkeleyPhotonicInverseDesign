@@ -1,0 +1,47 @@
+addrect;
+set('x', geo_x + geo_xspan/2);
+set('x span', geo_xspan);
+set('y', geo_y + geo_yspan/2);
+set('y span', geo_yspan);
+set('z', geo_z + geo_zspan/2);
+set('z span', geo_zspan);
+if(geo_nClad==0) {
+    set('material',geo_matClad);
+} else {
+    set('index', geo_nClad);
+}
+set('name','aboveSurfaceLayer');
+
+
+addsurface;
+if(sim3d) {
+	set('orientation','s vs x,y');
+} else {
+	set('orientation','s vs x,z');
+}
+
+set('x', geo_x + geo_xspan/2);
+set('x span', geo_xspan);
+set('y', geo_y + geo_yspan/2);
+set('y span', geo_yspan);
+set('z', geo_z + geo_zspan/2);
+set('z span', geo_zspan);
+set('material position', 'below surface');
+set('zero plane', 'lower edge');
+set('surface units', 'microns');
+set('u0',.5*geo_xspan*1e6);
+if(sim3d) {
+	set('v0',.5*geo_yspan*1e6);
+} else {
+	set('v0',0);
+}
+set('conic', 0);
+set('custom', 1);
+set('equation', geo_surface);
+if(geo_n==0) {
+    set('material',geo_mat);
+} else {
+    set('index', geo_n);
+}
+set('detail',1);
+set('name','belowSurfaceLayer');

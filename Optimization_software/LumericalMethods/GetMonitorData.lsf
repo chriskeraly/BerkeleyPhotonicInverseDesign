@@ -1,0 +1,33 @@
+
+matlab("monLen = size(monArr,1);");
+matlabget(monLen, sim3d);
+
+xMon = matrix(1,monLen);
+xMonLength = matrix(1,monLen);
+yMon = matrix(1,monLen);
+yMonLength = matrix(1,monLen);
+zMon = matrix(1,monLen);
+zMonLength = matrix(1,monLen);
+
+load(baseFile);
+
+for(monInd = 1:monLen) {
+matlabput(monInd);
+matlab("mon = monArr(monInd,:);");
+matlabget(mon);
+select(mon);
+set('override global monitor settings',0);
+xMon(monInd) = get('x min');
+xMonLength(monInd) = get('x span');
+yMon(monInd) = get('y min');
+yMonLength(monInd) = get('y span');
+zMon(monInd) = get('z');
+if(sim3D == 1) {
+zMonLength(monInd) = get('z span');
+}
+}
+
+save(baseFile);
+
+matlabsavelegacy('var',xMon, xMonLength, yMon, yMonLength, zMon, zMonLength);
+matlab("load('var',xMon, xMonLength, yMon, yMonLength, zMon, zMonLength)");

@@ -1,0 +1,125 @@
+matlab("load SetupBaseLum.mat");
+matlabget(baseFile,velocityMon,indexMon,shapeType);
+
+load(baseFile);
+
+select('FDTD');
+sim3d = get('dimension')=='3D';
+matlabsavelegacy('var',sim3d);
+matlab("load('var','sim3d')");
+
+if(getnamednumber('Source') == 0) {
+	matlab("lumError = 'ERROR: Sources must be named Source'; done=1;");
+	matlab("save('SetupBaseLum.mat','done','lumError');");
+	exit(2);
+}
+selectpartial('Source');
+set('override global source settings',0);
+
+if(getnamednumber(velocityMon) == 0) {
+	matlab("lumError = 'ERROR: Could not find appropriate Velocity monitor'; done=1;");
+	matlab("save('SetupBaseLum.mat','done','lumError');");
+	exit(2);
+}
+select(velocityMon);
+if(sim3d==0) {
+	set('monitor type','2D Z-normal');
+}
+mon_type=get('monitor type');
+vel_x=get('x');
+vel_x_span=get('x span');
+vel_x_min = vel_x - .5*vel_x_span;
+vel_y=get('y');
+vel_y_span=get('y span');
+vel_y_min = vel_y - .5*vel_y_span;
+vel_z=get('z');
+vel_z_span=get('z span');
+set('override global monitor settings',0);
+set('spatial interpolation','nearest mesh cell');
+set('output Ex',1);
+set('output Ey',1);
+set('output Ez',1);
+set('output Hx',0);
+set('output Hy',0);
+set('output Hz',0);
+
+if(getnamednumber(indexMon) > 0) {
+	select(indexMon); delete;
+}
+addindex;
+set('name',indexMon);
+set('monitor type',mon_type);
+set('x',vel_x);
+set('x span',vel_x_span);
+set('y',vel_y);
+set('y span',vel_y_span);
+set('z',vel_z);
+if(sim3d) {
+set('z span',vel_z_span);
+}
+set('override global monitor settings',0);
+set('spatial interpolation','nearest mesh cell');
+
+selectpartial('_index'); delete;
+
+matlab("numMon = size(merits,1);");
+matlabget(numMon);
+xMon = matrix(1,numMon);
+xMonLength = matrix(1,numMon);
+yMon = matrix(1,numMon);
+yMonLength = matrix(1,numMon);
+zMon = matrix(1,numMon);
+zMonLength = matrix(1,numMon);
+for(monInd=1:numMon) {
+matlabsavelegacy('var',monInd);
+matlab("load('var','monInd')");
+	matlab("mon=merits{monInd,2};");
+	matlab("merit_epsFlag = 1*(strcmp(merits{monInd,1},'fieldenergy') && merits{monInd,6}>=3);");
+	matlabget(mon,merit_epsFlag);
+	select(mon);
+	if(getnumber~=1) {
+		matlab("lumError='ERROR: Could not find appropriate Merit Function monitor'; done=1;");
+		matlab("save('SetupBaseLum.mat','done','lumError');");
+		exit(2);
+	}
+	else {
+		xMon(monInd) = get('x min');
+		xMonLength(monInd) = get('x span');
+		yMon(monInd) = get('y min');
+		yMonLength(monInd) = get('y span');
+		if(sim3d == 1) {
+			zMon(monInd) = get('z min');
+			zMonLength(monInd) = get('z span');
+		}
+		set('override global monitor settings',0);
+		set('output Ex',1);
+		set('output Ey',1);
+		set('output Ez',1);
+		set('output Hx',1);
+		set('output Hy',1);
+		set('output Hz',1);
+
+		if(merit_epsFlag){
+			addindex;
+			set('name',mon+'_index');
+			if(sim3d == 1) {
+				set('monitor type','3D');
+				set('z min',zMon(monInd));
+				set('z max',zMon(monInd)+zMonLength(monInd));
+			}
+			set('x min',xMon(monInd));
+			set('x max',xMon(monInd)+xMonLength(monInd));
+			set('y min',yMon(monInd));
+			set('y max',yMon(monInd)+yMonLength(monInd));
+			set('override global monitor settings',0);
+		}
+	}
+}
+
+matlabsavelegacy('var',vel_x_min, vel_x_span, vel_y_min, vel_y_span, vel_z, vel_z_span, xMon, xMonLength, yMon, yMonLength, zMon, zMonLength);
+matlab("load('var','vel_x_min','vel_x_span','vel_y_min','vel_y_span','vel_z','vel_z_span','xMon','xMonLength','yMon','yMonLength','zMon','zMonLength')");
+matlab("done=1; lumError='';");
+matlab("save('SetupBaseLum.mat','done','lumError','sim3d','vel_x_min','vel_x_span','vel_y_min','vel_y_span','vel_z','vel_z_span','xMon','xMonLength', 'yMon', 'yMonLength', 'zMon', 'zMonLength','-append','-v7.3')");
+save(baseFile);
+
+exit(2);

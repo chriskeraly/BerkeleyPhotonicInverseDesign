@@ -1,0 +1,13 @@
+
+sz = size(startEnd); numShapes = sz(1);
+if(numShapes>0) {
+	for(i = 1:numShapes) {
+		addpoly;
+		set("name","Polygon"+num2str(i));
+		set("x",0);
+		set("y",0);
+		vt = xy(startEnd(i,1):startEnd(i,2),1:2); # 2D
+		set("vertices",vt);
+		set("index",sqrt(epsLS));
+	}
+}

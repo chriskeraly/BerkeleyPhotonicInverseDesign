@@ -1,0 +1,124 @@
+matlab("addpath('LumericalMethods')");
+matlab("load('EZSiPh.mat')");
+
+matlabget(queueName,velocityMon,meritMon,meshsize,baseFile,runfile,nb_sources_merit);
+load(baseFile);
+save("modeImport.fsp");
+switchtolayout;
+
+select(velocityMon);
+vel_x_span=get('x span');
+vel_y_span=get('y span');
+vel_z_span=get('z span');
+vel_x=get('x');
+vel_y=get('y');
+vel_z=get('z');
+mon_type=get('monitor type');
+
+addindex;
+set('monitor type',mon_type);
+set("name","Index");
+set('x',vel_x);
+set('x span',vel_x_span);
+set('y',vel_y);
+set('y span',vel_y_span);
+set('z',vel_z);
+set('z span',vel_z_span);
+
+
+
+
+addmesh;
+set("name","outsidemesh");
+set('x',vel_x);
+set('x span',vel_x_span+2*meshsize);
+set('y',vel_y);
+set('y span',vel_y_span+2*meshsize);
+set('z',vel_z);
+set('z span',vel_z_span+2*meshsize);
+set('dx',meshsize);
+set('dy',meshsize);
+set('dz',meshsize);
+
+select('Source');
+wavelength_start=get('wavelength start');
+wavelength_stop=get('wavelength stop');
+
+for (i=1:nb_sources_merit) {
+	matlabput(i);
+	matlab("mon_name=strcat('mode',num2str(i));");
+	matlabget(mon_name);
+	select(mon_name);
+	delete;
+}
+
+	
+save(runfile);
+load(baseFile);
+select('Source');
+delete;
+for (i=1:nb_sources_merit) {
+	matlabput(i);
+	matlab("mon_name=strcat('mode',num2str(i));");
+	matlabget(mon_name);
+	select(mon_name);
+	set('override global source settings',1);
+	set('wavelength start',(wavelength_start+wavelength_stop)/2);
+	updatesourcemode;
+}
+
+select(velocityMon);
+vel_x_span=get('x span');
+vel_y_span=get('y span');
+vel_z_span=get('z span');
+vel_x=get('x');
+vel_y=get('y');
+vel_z=get('z');
+mon_type=get('monitor type');
+
+addindex;
+set('monitor type',mon_type);
+set("name","Index");
+set('x',vel_x);
+set('x span',vel_x_span);
+set('y',vel_y);
+set('y span',vel_y_span);
+set('z',vel_z);
+set('z span',vel_z_span);
+
+
+
+
+addmesh;
+set("name","outsidemesh");
+set('x',vel_x);
+set('x span',vel_x_span+2*meshsize);
+set('y',vel_y);
+set('y span',vel_y_span+2*meshsize);
+set('z',vel_z);
+set('z span',vel_z_span+2*meshsize);
+set('dx',meshsize);
+set('dy',meshsize);
+set('dz',meshsize);
+
+save('modeextract.fsp');
+if(queueName == 'local') {
+      runparallel;
+} else {
+      matlabput( queueName);
+      matlab("runParallelLum('modeextract.fsp',queueName);");
+      load("modeextract.fsp");
+}
+select('FDTD');
+dim=get('dimension');
+modeExtractor;
+
+index_x=getdata("Index",'x');
+index_y=getdata("Index",'y');
+index_z=getdata("Index",'z');
+index_val=getdata("Index",'index_x');
+matlab("clear all");
+matlabput(vel_x_span,vel_y_span,vel_z_span,vel_x,vel_y,vel_z,dim,wavelength_start,wavelength_stop,index_x,index_y,index_z,index_val);
+matlab("save('extracted_opt_parms')");
+
+exit(2);
