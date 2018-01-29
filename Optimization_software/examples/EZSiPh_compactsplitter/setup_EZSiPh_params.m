@@ -1,5 +1,5 @@
 % EZ SILICON PHOTONICS
-eps = 2.8^2; % Object permittivity or 'Material Name'
+eps_ = 2.8^2; % Object permittivity or 'Material Name'
 epsOut = 1.46^2; % Cladding permittivity or 'Material Name'
 
 nb_sources_merit=1; % number of sources used to make mode
