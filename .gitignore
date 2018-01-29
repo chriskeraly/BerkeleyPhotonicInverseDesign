@@ -1,2 +1,6 @@
 **/mat_files_obsolete_unsure
-
+*.mat
+*.idea
+*.DS_Store
+*.log
+Optimization_software/*.fsp
