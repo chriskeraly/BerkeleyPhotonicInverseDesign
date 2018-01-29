@@ -17,16 +17,16 @@ Graduate Students having worked on this code:
  
  ### Thesis:
  
- 	- Photonic Design: From Fundamental Solar Cell Physics to Computational Inverse Design 	
+ 	- Owen Miller: Photonic Design: From Fundamental Solar Cell Physics to Computational Inverse Design 	
  		http://optoelectronics.eecs.berkeley.edu/ThesisOwenMiller.pdf
-	- Heat-Assisted Magnetic Recording: Fundamental Limits to Inverse Electromagnetic Design
+	- Samarth Bhargava: Heat-Assisted Magnetic Recording: Fundamental Limits to Inverse Electromagnetic Design
 		 http://optoelectronics.eecs.berkeley.edu/BhargavaDissertation.pdf
- 	- Optical Design Considerations for High Conversion E fficiency in Photovoltaics
+ 	- Vidya Ganapati: Optical Design Considerations for High Conversion E fficiency in Photovoltaics
 		http://optoelectronics.eecs.berkeley.edu/GanapatiDissertation.pdf
-	- Optimizing Nanophotonics: from Photoreceivers to Waveguides	
+	- Christopher Lalau-Keraly: Optimizing Nanophotonics: from Photoreceivers to Waveguides	
 		https://www2.eecs.berkeley.edu/Pubs/TechRpts/2017/EECS-2017-20.pdf
 ### Papers: 
- 	- Adjoint shape optimization applied to electromagnetic design
+ 	- Adjoint shape optimization applied to electromagnetic design 
  	https://www.osapublishing.org/oe/abstract.cfm?uri=oe-21-18-21693
  	- Shape optimization of nanophotonic devices using the adjoint method
  	http://ieeexplore.ieee.org/document/6989970/
