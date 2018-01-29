@@ -113,7 +113,7 @@ classdef FourierSurface
         end
         
         %% SET GEOMETRY
-        % takes a binary matrix, 1s = obj.eps, 0s = obj.epsOut
+        % takes a binary matrix, 1s = obj.eps_, 0s = obj.epsOut
         % setEpsGrid(epsGrid, x_grid, y_grid)
         function obj = setCoeff(obj, coeff)
             obj.coeff = coeff / obj.dx;
@@ -198,7 +198,7 @@ classdef FourierSurface
         
         %% INTERPOLATE FIELDS ONTO GEOMETRY MESH
         % DO NOT AVERAGE FIELDS IN Z, give entire array to the shape
-        % Note that this is also used for eps = {epsx,epsy,epsz}
+        % Note that this is also used for eps_ = {epsx,epsy,epsz}
         % interpolateData(field, x_grid, y_grid)
         function [E] = interpolateData(obj, field, x_vec, y_vec, z_vec)
             xInt = obj.xVec;

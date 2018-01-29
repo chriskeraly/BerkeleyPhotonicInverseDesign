@@ -15,13 +15,13 @@ for (f=1:freqLen) {
 	matlab("mat = matArr{epsCnt}; flag = 1*ischar(mat);");
 	matlabget(mat, flag);
 	if(flag) {
-		eps = ( getfdtdindex(mat, freqVec(f), freqVec(1), freqVec(freqLen)) )^2;
+		eps_ = ( getfdtdindex(mat, freqVec(f), freqVec(1), freqVec(freqLen)) )^2;
 	} else {
-		eps = mat;
+		eps_ = mat;
 	}
-	matlabsavelegacy('var',eps);
-    	matlab("load('var','eps')");
-	matlab("epsArr{epsCnt}(f) = eps;");
+	matlabsavelegacy('var',eps_);
+    	matlab("load('var','eps_')");
+	matlab("epsArr{epsCnt}(f) = eps_;");
 }
 }
 

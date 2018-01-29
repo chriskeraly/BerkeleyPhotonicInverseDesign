@@ -3,7 +3,7 @@
 if(strcmp(shapeType,'Polygon'))
    matArr = {opt.geo.newShapeEps, opt.geo.epsClad};
    for i=1:opt.geo.numShapes
-       matArr = [matArr {opt.geo.shapes{i}.eps}];
+       matArr = [matArr {opt.geo.shapes{i}.eps_}];
    end
    save('SetupMaterials.mat','matArr','freqVec');
    [status,result] = system([lumerical ' -run LumericalMethods/SetupMaterials.lsf']);
@@ -14,8 +14,8 @@ if(strcmp(shapeType,'Polygon'))
        opt.geo.shapes{i}.epsVec = epsArr{2+i};
    end
 else
-   [~, eps, epsOut, ~, ~, ~, ~, ~] = opt.geo.getGeometry;
-   matArr = {eps, epsOut};
+   [~, eps_, epsOut, ~, ~, ~, ~, ~] = opt.geo.getGeometry;
+   matArr = {eps_, epsOut};
    save('SetupMaterials.mat','matArr','freqVec');
    [status,result] = system([lumerical ' -run LumericalMethods/SetupMaterials.lsf']);
    load('SetupMaterials.mat');

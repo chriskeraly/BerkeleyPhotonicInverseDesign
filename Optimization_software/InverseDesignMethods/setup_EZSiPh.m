@@ -37,7 +37,7 @@ end
 dx = meshsize; % Geometrical precision
 
 % Materials
-eps = eps; % Object permittivity or 'Material Name'
+eps_ = eps_; % Object permittivity or 'Material Name'
 epsOut = epsOut; % Cladding permittivity or 'Material Name'
 
 % Constraints
@@ -53,14 +53,14 @@ sideAnchoring=sideAnchoring;  % Anchors the boarder points of the initial geomet
 
 % Make Geometry Object (must be called 'geo')
 % Recommended: Use same x0, y0, z0... as the Geometry object
-geo = levelSet(x0, y0, z0, xLengthReal, yLengthReal, dx, thickness, eps, epsOut, xBC, yBC, maxArea, radiusCurv,diagBC,maxlsIter,sideAnchoring);
+geo = levelSet(x0, y0, z0, xLengthReal, yLengthReal, dx, thickness, eps_, epsOut, xBC, yBC, maxArea, radiusCurv,diagBC,maxlsIter,sideAnchoring);
 
 %%%%%%%INITIAL GEOMETRY%%%%%%%%%%%
 %Either automatic import using autoImportGeometry or define your own
 %epsGrid0, or your own level set initial function
 
 %%%% Automatic import of geometry
-[epsGridImport,~,~,~,~,~,~] = autoImportGeometry(eps, freq, lumerical, baseFile, velocityMon, queueName, dx);
+[epsGridImport,~,~,~,~,~,~] = autoImportGeometry(eps_, freq, lumerical, baseFile, velocityMon, queueName, dx);
 phi=messySD(0.5-epsGridImport,geo.dx);
 %%%%
 
@@ -74,7 +74,7 @@ phi=messySD(0.5-epsGridImport,geo.dx);
 
 % *Optional*
 % Contruct a bit map to set the initial shape
-% negative =  (eps), positive = Cladding (epsClad)
+% negative =  (eps_), positive = Cladding (epsClad)
 % wg=abs(geo.yGrid)-250E-9-350E-9/2E-6*(geo.xGrid+30E-6);
 % wg1=(abs(geo.yGrid)<250e-9);
 % wg2=(abs(geo.xGrid)<250e-9);

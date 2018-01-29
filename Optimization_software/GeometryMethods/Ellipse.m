@@ -9,7 +9,7 @@ classdef Ellipse
     %% PROPERTIES
     properties
         epsVec; % vector of actual epsClad values
-        eps; % single eps value or 'material name'
+        eps_; % single eps_ value or 'material name'
         dynamic; % 0=static
         meshOrder; % 1=highest priority
         
@@ -64,8 +64,8 @@ classdef Ellipse
     methods
         %% CONSTRUCTOR
         % params = {x0, y0, xr, yr}
-        function obj = Ellipse(eps, dynamic, meshOrder, rules, params, testFlag)
-            obj.eps = eps;
+        function obj = Ellipse(eps_, dynamic, meshOrder, rules, params, testFlag)
+            obj.eps_ = eps_;
             obj.dynamic = dynamic;
             obj.meshOrder = meshOrder;
             obj.x0 = params(1);
@@ -85,10 +85,10 @@ classdef Ellipse
                 end
                 fprintf('  (x0,y0) = (%g,%g) \n',obj.x0,obj.y0);
                 fprintf('  (xr,yr) = (%g,%g) \n',obj.xr,obj.yr);
-                if(ischar(obj.eps))
-                    fprintf('  eps = %s \n',obj.eps);
+                if(ischar(obj.eps_))
+                    fprintf('  eps_ = %s \n',obj.eps_);
                 else
-                    fprintf('  eps = %g \n',obj.eps);
+                    fprintf('  eps_ = %g \n',obj.eps_);
                 end
             end
         end
@@ -168,7 +168,7 @@ classdef Ellipse
         %% CALCULATE V ON EXTERNAL MESH
         % E is assumed to have dimensions {1 x numFreq x numUser}{1x3}
         % EA is assumed to have dimensions {numMon x numFreq x numUser}{1x3}
-        % For now, it is assumed that eps = avg(epsx, epsy, epsz)
+        % For now, it is assumed that eps_ = avg(epsx, epsy, epsz)
         % VLine is a matrix of size [numMon x numFreq x numUser x padSize]
         function[obj, xGrid, yGrid, VCell, epsCell] = calcV(obj, E, EA, epsBgnd)
             

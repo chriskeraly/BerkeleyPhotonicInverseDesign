@@ -351,10 +351,10 @@ classdef Optimizer
         end
         
         %% UPDATE GEOMETRY FIELD DATA
-        function[obj] = updateGeoData(obj, E, pos_E, eps, pos_eps, monSimNo, freqInd, userSimNo, EAflag)
+        function[obj] = updateGeoData(obj, E, pos_E, eps_, pos_eps, monSimNo, freqInd, userSimNo, EAflag)
             obj.grad = obj.grad.updateFieldData(E, pos_E{1}, pos_E{2}, pos_E{3}, monSimNo, freqInd, userSimNo, EAflag);
             if(EAflag == 0)
-                obj.grad = obj.grad.updateEpsData(eps, pos_eps{1}, pos_eps{2}, pos_eps{3}, freqInd);
+                obj.grad = obj.grad.updateEpsData(eps_, pos_eps{1}, pos_eps{2}, pos_eps{3}, freqInd);
             end
         end
         
@@ -463,7 +463,7 @@ classdef Optimizer
             if(isa(obj.geo,'FourierSurface') || isa(obj.geo,'Polygons'))
                 geoData = obj.geo.returnData;
             else
-                [epsGrid, eps, epsOut, x0, y0, z0, dx, thickness] = obj.geo.getGeometry;
+                [epsGrid, eps_, epsOut, x0, y0, z0, dx, thickness] = obj.geo.getGeometry;
                 
                 [numY, numX] = size(epsGrid);
                 numZ = floor(1e-4*round(1e4*thickness / dx));
@@ -478,7 +478,7 @@ classdef Optimizer
                 binaryFlag = all(all((epsGrid==0) | (epsGrid==1)));
                 
                 % FreeForm Binary Import
-                if( binaryFlag && (numX>1) && isreal(eps) && isreal(epsOut) )
+                if( binaryFlag && (numX>1) && isreal(eps_) && isreal(epsOut) )
                     [xGrid, yGrid] = meshgrid(1:numX, 1:numY);
                     cnt = 0;
                     yArr=[];
@@ -490,7 +490,7 @@ classdef Optimizer
                         ind = find(bndIn);
                         x1 = xGrid0(ind(1:2:end-1));
                         x2 = xGrid0(ind(2:2:end));
-                        % eps center coordinates and square dimensions
+                        % eps_ center coordinates and square dimensions
                         xArr = .5*(x2+x1);
                         yArr = yGrid(1,1);
                         blockSizeArr = x2-x1;
@@ -522,7 +522,7 @@ classdef Optimizer
                                 end
                             end
                         end
-                        % eps center coordinates and square dimensions
+                        % eps_ center coordinates and square dimensions
                         xArr = xGrid0(1,xArr);
                         yArr = yGrid0(yArr,1);
                         blockSizeArr = blockSizeArr*dx;
@@ -537,11 +537,11 @@ classdef Optimizer
                     geo_z = z0;
                     geo_zspan = (numZ) * dx;
                     
-                    if( ischar(eps) )
+                    if( ischar(eps_) )
                         geo_n = 0;
-                        geo_mat = eps;
+                        geo_mat = eps_;
                     else
-                        geo_n = sqrt(eps);
+                        geo_n = sqrt(eps_);
                         geo_mat = '';
                     end
                     if( ischar(epsOut) )
@@ -557,8 +557,8 @@ classdef Optimizer
                     
                     
                     % FreeForm importnk Matrix
-                elseif( ~ischar(eps) && ~ischar(epsOut) )
-                    n = sqrt(epsGrid*(eps-epsOut)+epsOut);
+                elseif( ~ischar(eps_) && ~ischar(epsOut) )
+                    n = sqrt(epsGrid*(eps_-epsOut)+epsOut);
                     n = n.'; % transpose for Lumerical
                     zVec = [zVec(1),zVec(end)];
                     len = length(zVec);
@@ -581,11 +581,11 @@ classdef Optimizer
                 
             end
             %             FreeForm_image Import
-            %             if( ischar(obj.eps) )
+            %             if( ischar(obj.eps_) )
             %                 geo_n = 0;
-            %                 geo_mat = obj.eps;
+            %                 geo_mat = obj.eps_;
             %             else
-            %                 geo_n = sqrt(obj.eps);
+            %                 geo_n = sqrt(obj.eps_);
             %                 geo_mat = '';
             %             end
             %

@@ -30,9 +30,9 @@ classdef Grating
         yBC;
         
         %Freeform shape properties
-        eps; %filled-in material
+        eps_; %filled-in material
         epsOut; %background material
-        epsGrid; %freeform eps matrix, rows correspond to zDepths
+        epsGrid; %freeform eps_ matrix, rows correspond to zDepths
         VBoundary;
         VBoundaryAll; % cell array of size [numFreq,numUser]
         maskGrid;
@@ -65,7 +65,7 @@ classdef Grating
     end
     
     methods
-        function obj = Grating(x0, y0, z0, xLengthReal, yLengthReal, dx, zDepths, eps, epsOut, xBC, yBC, newShapeCreation, newShapeRad, newShapePad, maxMove, eraseSize, velPadding, currShapePad, radiusCurv, numFreq, numUser)
+        function obj = Grating(x0, y0, z0, xLengthReal, yLengthReal, dx, zDepths, eps_, epsOut, xBC, yBC, newShapeCreation, newShapeRad, newShapePad, maxMove, eraseSize, velPadding, currShapePad, radiusCurv, numFreq, numUser)
             obj.x0 = x0;
             obj.y0 = y0;
             obj.z0 = z0;
@@ -85,7 +85,7 @@ classdef Grating
             obj.zDepths = floor(1e-4*round(1e4*(zDepths-zDepths(1)) / dx)) + 1;
             obj.zVec = z0+dx*(0:obj.numZ-1)+dx/2;
             
-            obj.eps = eps;
+            obj.eps_ = eps_;
             obj.epsOut = epsOut;
             obj.epsGrid = zeros(obj.numY,obj.numX,obj.numDepths);
             obj.VBoundary = zeros(obj.numY,obj.numX);
@@ -106,13 +106,13 @@ classdef Grating
             obj.newShapeType = 'circle';
             
             for i = 1:obj.numDepths
-                obj.geoXY{i} = FreeForm(x0, y0, z0, xLengthReal, yLengthReal, dx, (obj.zDepths(end)-obj.zDepths(i))*obj.dx, eps, epsOut, xBC, yBC, newShapeCreation, newShapeRad, newShapePad, maxMove, eraseSize, velPadding, currShapePad, radiusCurv, numFreq, numUser);
+                obj.geoXY{i} = FreeForm(x0, y0, z0, xLengthReal, yLengthReal, dx, (obj.zDepths(end)-obj.zDepths(i))*obj.dx, eps_, epsOut, xBC, yBC, newShapeCreation, newShapeRad, newShapePad, maxMove, eraseSize, velPadding, currShapePad, radiusCurv, numFreq, numUser);
             end
             
         end
         
         %% setEpsGrid(epsGrid, x_grid, y_grid, z_vec)
-        % takes a binary matrix, 1s = obj.eps, 0s = obj.epsOut
+        % takes a binary matrix, 1s = obj.eps_, 0s = obj.epsOut
         function obj = setEpsGrid(obj, epsGrid, x_grid, y_grid, z_vec)
             zLen = length(z_vec);
             if(zLen ~= obj.numDepths)
@@ -286,7 +286,7 @@ classdef Grating
                 y = obj.zVec;
                 z = 0;
                 
-                nDepth = sqrt((obj.epsGrid==1)*obj.eps + (obj.epsGrid==0)*obj.epsOut);
+                nDepth = sqrt((obj.epsGrid==1)*obj.eps_ + (obj.epsGrid==0)*obj.epsOut);
                 zLen = length(obj.zDepths);
                 for i=1:zLen-1
                     n(:,:,obj.zDepths(i):obj.zDepths(i+1)-1) = repmat(nDepth(:,:,i),[1 1 (obj.zDepths(i+1)-obj.zDepths(i))]);
@@ -313,7 +313,7 @@ classdef Grating
                 [padIn, thetaIn] = obj.geoXY.getPadIn;
                 pad = padOut + padIn;
                 theta = obj.geoXY.getThetaOut + obj.geoXY.getThetaIn;
-                epsPad = padOut*obj.epsOut + padIn*obj.eps;
+                epsPad = padOut*obj.epsOut + padIn*obj.eps_;
                 figure(11); imagesc(theta); caxis([-pi pi]); colormap(bluewhitered);
                 figure(12); imagesc(epsPad); colormap(bluewhitered);
             else

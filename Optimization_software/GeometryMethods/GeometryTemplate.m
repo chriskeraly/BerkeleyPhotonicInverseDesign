@@ -16,10 +16,10 @@ classdef GeometryTemplate
         % z0 is the center z coordinate (meters)
         % thickness of extruded planar geometry (meters)
         % dx is the uniform spacing of epsGrid (meters)
-        % epsGrid is a binary bitmap of permittivity (1 = eps, 0 = epsOut)
-        % eps = relative permittivity or 'Lumerical material name'
+        % epsGrid is a binary bitmap of permittivity (1 = eps_, 0 = epsOut)
+        % eps_ = relative permittivity or 'Lumerical material name'
         % epsOut = relative permittivity or 'Lumerical material name'
-        function [epsGrid, eps, epsOut, x0, y0, z0, dx, thickness] = getGeometry(obj)
+        function [epsGrid, eps_, epsOut, x0, y0, z0, dx, thickness] = getGeometry(obj)
             
             % Output geometry given internal properties
             

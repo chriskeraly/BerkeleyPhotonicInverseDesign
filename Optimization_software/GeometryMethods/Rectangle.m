@@ -5,7 +5,7 @@ classdef Rectangle
     
     properties
         epsVec; % vector of actual epsClad values
-        eps; % single eps value or 'material name'
+        eps_; % single eps_ value or 'material name'
         dynamic; % 0=static
         meshOrder; % 1=highest priority
         
@@ -52,8 +52,8 @@ classdef Rectangle
     end
     
     methods
-        function obj = Rectangle(eps, dynamic, meshOrder, rules, params, testFlag)
-            obj.eps = eps;
+        function obj = Rectangle(eps_, dynamic, meshOrder, rules, params, testFlag)
+            obj.eps_ = eps_;
             obj.dynamic = dynamic;
             obj.meshOrder = meshOrder;
             obj.x0 = params(1);
@@ -70,12 +70,12 @@ classdef Rectangle
 					fprintf('%%%% ADDING DYNAMIC RECTANGLE %%%% \n');
 					fprintf('  (x0,y0) = (%g,%g) \n',obj.x0,obj.y0);
 					fprintf('  (numX,numY) = (%g,%g) \n',obj.xLength,obj.yLength);
-					fprintf('  eps = %g \n',obj.eps);
+					fprintf('  eps_ = %g \n',obj.eps_);
 				else
 					fprintf('%%%% ADDING STATIC RECTANGLE %%%% \n');
 					fprintf('  (x0,y0) = (%g,%g) \n',obj.x0,obj.y0);
 					fprintf('  (numX,numY) = (%g,%g) \n',obj.xLength,obj.yLength);
-					fprintf('  eps = %g \n',obj.eps);				
+					fprintf('  eps_ = %g \n',obj.eps_);
 				end
 			end
         end

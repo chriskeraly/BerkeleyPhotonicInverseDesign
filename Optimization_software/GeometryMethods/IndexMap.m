@@ -21,9 +21,9 @@ classdef IndexMap
         diagBC;% % 0=nothing, 1=symmetric along diagonal 
         
         %Freeform shape properties
-        eps; % single eps value or 'material name'
-        epsOut; % single eps value or 'material name'
-        epsGrid; % freeform eps matrix (1 = eps, 0 = epsOut)
+        eps_; % single eps_ value or 'material name'
+        epsOut; % single eps_ value or 'material name'
+        epsGrid; % freeform eps_ matrix (1 = eps_, 0 = epsOut)
         maskGrid; % 0s indicate non-designable regions
         timeStep;
         
@@ -35,7 +35,7 @@ classdef IndexMap
     
     methods
 
-        function obj = IndexMap(x0, y0, z0, xLengthReal, yLengthReal, dx, thickness, eps, epsOut, xBC, yBC, diagBC,timeStep)
+        function obj = IndexMap(x0, y0, z0, xLengthReal, yLengthReal, dx, thickness, eps_, epsOut, xBC, yBC, diagBC,timeStep)
             obj.x0 = x0;
             obj.y0 = y0;
             obj.z0 = z0;
@@ -62,7 +62,7 @@ classdef IndexMap
                 obj.zVec = z0 + dx*[-1 1];
             end
             
-            obj.eps = eps;
+            obj.eps_ = eps_;
             obj.epsOut = epsOut;
             obj.epsGrid = zeros(obj.numY,obj.numX);
             
@@ -79,12 +79,12 @@ classdef IndexMap
         % z0 is the center z coordinate (meters)
         % thickness of extruded planar geometry (meters)
         % dx is the uniform spacing of epsGrid (meters)
-        % epsGrid is a binary bitmap of the shapes (1 = eps, 0 = epsOut)
-        % eps = dielectric constant or 'Lumerical material name'
+        % epsGrid is a binary bitmap of the shapes (1 = eps_, 0 = epsOut)
+        % eps_ = dielectric constant or 'Lumerical material name'
         % epsOut = dielectric constant or 'Lumerical material name'
-        function [epsGrid, eps, epsOut, x0, y0, z0, dx, thickness] = getGeometry(obj)
+        function [epsGrid, eps_, epsOut, x0, y0, z0, dx, thickness] = getGeometry(obj)
             epsGrid = obj.epsGrid;
-            eps = obj.eps;
+            eps_ = obj.eps_;
             epsOut = obj.epsOut;
             x0 = obj.x0;
             y0 = obj.y0;
@@ -153,7 +153,7 @@ classdef IndexMap
         end
         
         %% SET GEOMETRY
-        % takes a binary matrix, 1s = obj.eps, 0s = obj.epsOut
+        % takes a binary matrix, 1s = obj.eps_, 0s = obj.epsOut
         % setGeometry(epsGrid, x_grid, y_grid)
         function obj = setGeometry(obj, epsGrid)       
             obj.epsGrid=epsGrid;

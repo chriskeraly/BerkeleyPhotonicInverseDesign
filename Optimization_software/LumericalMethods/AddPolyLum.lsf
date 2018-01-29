@@ -5,13 +5,13 @@ if(numShapes>0) {
     matlab("load('var','i')");
 	matlab("
             type = dataMatrix{i,1};
-            eps = dataMatrix{i,2};
-	 isMatName = 1*ischar(eps);
+            eps_ = dataMatrix{i,2};
+	 isMatName = 1*ischar(eps_);
             coord = dataMatrix{i,3};
             z0 = dataMatrix{i,4};
             zSpan = dataMatrix{i,5};
         	");
-        matlabget(type, eps, isMatName, coord, z0, zSpan);
+        matlabget(type, eps_, isMatName, coord, z0, zSpan);
 		if( type == 1 ) {
 			addrect;
 			set('name','rectangle'+num2str(i));
@@ -29,10 +29,10 @@ if(numShapes>0) {
 			set('radius 2',coord(4));
 		}
 		if( isMatName ) {
-            set('material',eps);
+            set('material',eps_);
         } else {
             set("material","<Object defined dielectric>");
-            set('index',sqrt(eps));
+            set('index',sqrt(eps_));
         }
         set('z',z0);
 		set('z span',zSpan);

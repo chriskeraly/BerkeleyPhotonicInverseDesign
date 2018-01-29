@@ -1,7 +1,7 @@
 matlab("addpath('LumericalMethods')");
 
 matlab("load autoImportGeometry.mat");
-matlabget(eps,freq,baseFile,velocityMon,queueName);
+matlabget(eps_,freq,baseFile,velocityMon,queueName);
 
 load(baseFile);
 
@@ -66,17 +66,17 @@ if(havedata(velocityMon+'_index','index_x')) {
 x=getdata(velocityMon+'_index','x');
 y=getdata(velocityMon+'_index','y');
 
-matlab("flag = 1*ischar(eps);");
+matlab("flag = 1*ischar(eps_);");
 matlabget(flag);
 if(flag) {
-	eps = ( getfdtdindex(eps, freq, freq, freq) )^2;
+	eps_ = ( getfdtdindex(eps_, freq, freq, freq) )^2;
 }
 
-matlabsavelegacy('var',eps,epsGrid,x,y, vel_x_min, vel_x_span, vel_y_min, vel_y_span, vel_z, vel_z_span);
-matlab("load('var','eps','epsGrid','x','y','vel_x_min','vel_x_span','vel_y_min','vel_y_span','vel_z','vel_z_span');");
+matlabsavelegacy('var',eps_,epsGrid,x,y, vel_x_min, vel_x_span, vel_y_min, vel_y_span, vel_z, vel_z_span);
+matlab("load('var','eps_','epsGrid','x','y','vel_x_min','vel_x_span','vel_y_min','vel_y_span','vel_z','vel_z_span');");
 matlab("epsGrid = epsGrid.';
-	figure; imagesc(x,y,real(eps)); axis('equal');
+	figure; imagesc(x,y,real(eps_)); axis('equal');
 	done=1; lumError='';
-	save('autoImportGeometry.mat','done','lumError','eps','epsGrid','x','y','vel_x_min','vel_x_span','vel_y_min','vel_y_span','vel_z','vel_z_span','-v7.3');
+	save('autoImportGeometry.mat','done','lumError','eps_','epsGrid','x','y','vel_x_min','vel_x_span','vel_y_min','vel_y_span','vel_z','vel_z_span','-v7.3');
 ");
 exit(2);

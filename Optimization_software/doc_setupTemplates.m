@@ -45,7 +45,7 @@ freq = [f1 f2 numFreq1; ...
 
 %% GEOMETRY PROPERTIES >> FREEFORM
 % Materials
-eps = 'Ta2O5'; % Object permittivity or 'Material Name'
+eps_ = 'Ta2O5'; % Object permittivity or 'Material Name'
 epsOut = 'SiO2 (silica) :: 300-2000nm'; % Cladding permittivity or 'Material Name'
 
 % Constraints
@@ -69,7 +69,7 @@ maxArea = 4*(2*newShapeRad); % Maximium total area change per iteration
 initialShape = 0; % (Beta Feature) massive + random-ish first iteration guess
 
 % Import dimensions (x,y,z) and initial shape (epsGridImport) from baseFile 
-[epsGridImport,x_min,x_span,y_min,y_span,z_center,z_span] = autoImportGeometry(eps, freq, lumerical, baseFile, velocityMon, queueName, dx);
+[epsGridImport,x_min,x_span,y_min,y_span,z_center,z_span] = autoImportGeometry(eps_, freq, lumerical, baseFile, velocityMon, queueName, dx);
 
 % *Optional* 
 % Force 1D geometry, extruded in y (rarely used)
@@ -79,7 +79,7 @@ initialShape = 0; % (Beta Feature) massive + random-ish first iteration guess
 % y_span = dx;
 
 % Make Geometry Object (must be called 'geo')
-geo = FreeForm(x_min, y_min, z_center, x_span, y_span, dx, z_span, eps, epsOut, xBC, yBC, diagBC, newShapeCreation, newShapeRad, newShapePad, maxMove, maxArea, minPadding, radiusCurv, radiusCurvHard, minDimension, initialShape);
+geo = FreeForm(x_min, y_min, z_center, x_span, y_span, dx, z_span, eps_, epsOut, xBC, yBC, diagBC, newShapeCreation, newShapeRad, newShapePad, maxMove, maxArea, minPadding, radiusCurv, radiusCurvHard, minDimension, initialShape);
 
 % INITIAL GEOMETRY
 % Options for initial geometry:
@@ -93,7 +93,7 @@ geo = geo.setGeometry(epsGridImport, geo.xGrid, geo.yGrid);
 
 % *Optional*
 % Manually contruct a bit map to set the initial shape
-% 1 = FreeForm Object (eps), 0 = Cladding (epsOut)
+% 1 = FreeForm Object (eps_), 0 = Cladding (epsOut)
 % Coordinates of bitmap = geo.xGrid, geo.yGrid
 % wg1 = abs(geo.yGrid-600e-9)<=150e-9 & (geo.xGrid+1900e-9)<-1100e-9;
 % wg2 = abs(geo.yGrid-200e-9)<=150e-9 & (geo.xGrid+1900e-9)>1100e-9;
@@ -123,7 +123,7 @@ figure(1); imagesc(geo.xGrid(1,:),geo.yGrid(:,1),geo.epsGrid+.1*geo.maskGrid); a
 %% GEOMETRY PROPERTIES >> LEVEL SET
 
 % Materials
-eps = 3.47^2; % Object permittivity or 'Material Name'
+eps_ = 3.47^2; % Object permittivity or 'Material Name'
 epsOut = 1.46^2; % Cladding permittivity or 'Material Name'
 
 % Constraints
@@ -139,10 +139,10 @@ maxlsIter = 300; % Maximum updates of the level set function
 sideAnchoring = 1;  % Anchors the boarder points of the initial geometry so they don't move during the optimization
 
 % Import dimensions (x,y,z) and initial shape (epsGridImport) from baseFile
-[epsGridImport,x_min,x_span,y_min,y_span,z_center,z_span] = autoImportGeometry(eps, freq, lumerical, baseFile, velocityMon, queueName, dx);
+[epsGridImport,x_min,x_span,y_min,y_span,z_center,z_span] = autoImportGeometry(eps_, freq, lumerical, baseFile, velocityMon, queueName, dx);
 
 % Make Geometry Object (must be called 'geo')
-geo = levelSet(x_min, y_min, z_center, x_span, y_span, dx, z_span, eps, epsOut, xBC, yBC, maxArea, radiusCurv,diagBC,maxlsIter,sideAnchoring);
+geo = levelSet(x_min, y_min, z_center, x_span, y_span, dx, z_span, eps_, epsOut, xBC, yBC, maxArea, radiusCurv,diagBC,maxlsIter,sideAnchoring);
 
 % INITIAL GEOMETRY
 % Options for initial geometry:
@@ -155,7 +155,7 @@ geo = levelSet(x_min, y_min, z_center, x_span, y_span, dx, z_span, eps, epsOut, 
 phi=messySD(0.5-epsGridImport,geo.dx);
 
 % Manually contruct a bit map to set the initial shape
-% 1 = LevelSet Object (eps), 0 = Cladding (epsOut)
+% 1 = LevelSet Object (eps_), 0 = Cladding (epsOut)
 % Coordinates of bitmap = geo.xGrid, geo.yGrid
 % epsGrid0=your_bitmap;
 % phi=messySD(0.5-epsGrid0,obj.dx);
@@ -171,7 +171,7 @@ geo = geo.setGeometry(phi);
 %% GEOMETRY PROPERTIES >> INDEX MAP
 
 % Materials
-eps = 3^2; % Object permittivity or 'Material Name'
+eps_ = 3^2; % Object permittivity or 'Material Name'
 epsOut = 2^2; % Cladding permittivity or 'Material Name'
 
 % Constraints
@@ -184,10 +184,10 @@ diagBC = 0; % 1 = force symmetry along the diagonal
 maxMove = 0.02;
 
 % Import dimensions (x,y,z) from baseFile
-[~,x_min,x_span,y_min,y_span,z_center,z_span] = autoImportGeometry(eps, freq, lumerical, baseFile, velocityMon, queueName, dx);
+[~,x_min,x_span,y_min,y_span,z_center,z_span] = autoImportGeometry(eps_, freq, lumerical, baseFile, velocityMon, queueName, dx);
 
 % Make Geometry Object (must be called 'geo')
-geo = IndexMap(x_min, y_min, z_center, x_span, y_span, dx, z_span, eps, epsOut, xBC, yBC,diagBC,maxMove);
+geo = IndexMap(x_min, y_min, z_center, x_span, y_span, dx, z_span, eps_, epsOut, xBC, yBC,diagBC,maxMove);
 
 % Initial Geometry is automatically epsOut everywhere in space
 

@@ -13,7 +13,7 @@ classdef Polygons
         z0; % center
         dx; %dx = dy
         thickness;
-        epsClad; % single eps value or 'material name'
+        epsClad; % single eps_ value or 'material name'
 
         %Internal Mesh 
         numX;
@@ -133,7 +133,7 @@ classdef Polygons
         
         %% ADD SHAPE TO GEOMETRY
 		% functional form:
-        % obj = Rectangle(eps, dynamic, meshOrder, rules, params, testFlag)
+        % obj = Rectangle(eps_, dynamic, meshOrder, rules, params, testFlag)
         function obj = addShape(obj,newShapeObj)
             if( strcmp('rectangle', newShapeObj{1}) )
 				obj.numShapes = obj.numShapes + 1;
@@ -179,7 +179,7 @@ classdef Polygons
         
         %% INTERPOLATE FIELDS ONTO GEOMETRY MESH
         % DO NOT AVERAGE FIELDS IN Z, give entire array to the shape
-        % Note that this is also used for eps = {epsx,epsy,epsz}
+        % Note that this is also used for eps_ = {epsx,epsy,epsz}
         function field = interpolateData(obj, field, x_grid, y_grid)
             xi = IntToExt(obj,1:obj.numX,ones(1,obj.numX),ones(1,obj.numX));
             yi = IntToExt(obj,1:obj.numY,2*ones(1,obj.numY),ones(1,obj.numY));
@@ -549,10 +549,10 @@ classdef Polygons
                     cnt = cnt + 1;
                     if( strcmp( class(objShape), 'Rectangle' ) )
                         coord = IntToExt(obj, [objShape.x0, objShape.y0, objShape.xLength, objShape.yLength], [1,2,1,2], [1,1,0,0]);
-                        dataMatrix(cnt,:) = [{1}, {objShape.eps}, {coord}, {obj.z0}, {obj.thickness}];
+                        dataMatrix(cnt,:) = [{1}, {objShape.eps_}, {coord}, {obj.z0}, {obj.thickness}];
                     elseif( strcmp( class(objShape), 'Ellipse' ) )
                         coord = IntToExt(obj, [objShape.x0, objShape.y0, objShape.xr, objShape.yr], [1,2,1,2], [1,1,0,0]);
-                        dataMatrix(cnt,:) = [{2}, {objShape.eps}, {coord}, {obj.z0}, {obj.thickness}];
+                        dataMatrix(cnt,:) = [{2}, {objShape.eps_}, {coord}, {obj.z0}, {obj.thickness}];
                     end
                 end
             end

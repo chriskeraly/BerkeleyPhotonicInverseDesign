@@ -23,16 +23,16 @@ classdef Spline
         yBC;
         
         %Freeform shape properties
-        eps; % single eps value or 'material name'
-        epsOut; % single eps value or 'material name'
+        eps_; % single eps_ value or 'material name'
+        epsOut; % single eps_ value or 'material name'
         knots; % knots(1,:) = x coordinates, knots(2,:) = y coordinates
         
         %Data = cell(numMon, numFreq, numUD) [numY, numX]
         E;
         EA;
         epsBgnd;
-        epsVec; % vector of actual eps values
-        epsOutVec; % vector of actual eps values
+        epsVec; % vector of actual eps_ values
+        epsOutVec; % vector of actual eps_ values
         
         % Derivative matrix
         % size = [numMon, numFreq, numUD, numY, numX]
@@ -75,7 +75,7 @@ classdef Spline
     end
     
     methods
-        function obj = Spline(x0, y0, z0, xLengthReal, yLengthReal, dx, thickness, eps, epsOut, xBC, yBC, newShapeCreation, newShapeRad, newShapePad, maxMove, maxArea, eraseSize, velPadding, minPadding, radiusCurv, radiusCurvHard, minDimension, fastShape)
+        function obj = Spline(x0, y0, z0, xLengthReal, yLengthReal, dx, thickness, eps_, epsOut, xBC, yBC, newShapeCreation, newShapeRad, newShapePad, maxMove, maxArea, eraseSize, velPadding, minPadding, radiusCurv, radiusCurvHard, minDimension, fastShape)
             obj.x0 = x0;
             obj.y0 = y0;
             obj.z0 = z0;
@@ -91,7 +91,7 @@ classdef Spline
                 obj.zVec = z0 + dx*[-1 1];
             end
             
-            obj.eps = eps;
+            obj.eps_ = eps_;
             obj.epsOut = epsOut;
             obj.epsGrid = zeros(obj.numY,obj.numX);
             obj.maskGrid=ones(obj.numY,obj.numX);
@@ -128,7 +128,7 @@ classdef Spline
         end
         
         %% SET GEOMETRY
-        % takes a binary matrix, 1s = obj.eps, 0s = obj.epsOut
+        % takes a binary matrix, 1s = obj.eps_, 0s = obj.epsOut
         % setEpsGrid(epsGrid, x_grid, y_grid)
         function obj = setEpsGrid(obj, epsGrid, x_grid, y_grid)
             if(obj.numY==1)
@@ -219,7 +219,7 @@ classdef Spline
         
         %% INTERPOLATE FIELDS ONTO GEOMETRY MESH
         % DO NOT AVERAGE FIELDS IN Z, give entire array to the shape
-        % Note that this is also used for eps = {epsx,epsy,epsz}
+        % Note that this is also used for eps_ = {epsx,epsy,epsz}
         % interpolateData(field, x_grid, y_grid)
         function [E] = interpolateData(obj, field, x_grid, y_grid)
             xInt = obj.xGrid;
@@ -333,7 +333,7 @@ classdef Spline
                 % Add new shapes
                 [xgrid, ygrid] = meshgrid(1:obj.numX, 1:obj.numY);
                 if(obj.epsGrid(y,x)==0)
-                    % Add circle of eps
+                    % Add circle of eps_
                     newEpsGrid = ((xgrid-x).^2 + (ygrid-y).^2) < r^2;
                     obj.epsGrid = obj.epsGrid | newEpsGrid;
                 else
@@ -395,7 +395,7 @@ classdef Spline
             
             [xgrid, ygrid] = meshgrid(1:obj.numX, 1:obj.numY);
             
-            % Construct mask to for adding eps
+            % Construct mask to for adding eps_
             Nx = obj.numX;
             Ny = obj.numY;
             radCurv = obj.newShapePad;
@@ -486,7 +486,7 @@ classdef Spline
             F0 = reshape(F0,1,1,[]);
             minF0 = min(F0);
             F0_arr = repmat(F0,[obj.numY,obj.numX]);
-            % Consider circle of eps
+            % Consider circle of eps_
             velocitym = velocity.*repmat(epsGridMask,[1 1 size(velocity,3)]);
             Fnew = dANew*velocitym + F0_arr;
             minFnew = min(Fnew,[],3);
@@ -509,7 +509,7 @@ classdef Spline
                 newShape = [x2, y2, r, dF2];
             end
             
-            % FastShape, add non-circular regions of eps and/or epsOut
+            % FastShape, add non-circular regions of eps_ and/or epsOut
             dF = sum(velocity,3);
             dFmax = max(max(dF));
             dFmin = max(max(dF));
@@ -555,14 +555,14 @@ classdef Spline
         
         %% CALCULATE BOUNDARY DERIVATIVES - HELPER
         % Averages dFdx_mfu about the extruded dimension (z-axis)
-        function dFdx_mfu = calcV(obj, Ep, EAp, Dn, DAn, Ez, EAz, pad, eps, epsOut)
-            dFdxPad_p = real( (eps - epsOut) .* Ep .* EAp ); % par component
+        function dFdx_mfu = calcV(obj, Ep, EAp, Dn, DAn, Ez, EAz, pad, eps_, epsOut)
+            dFdxPad_p = real( (eps_ - epsOut) .* Ep .* EAp ); % par component
             if(real(obj.epsVec(1))<0)
-                dFdxPad_pz = real( Ez .* EAz .* (1./epsOut - 1./eps) ); % perp-z component
+                dFdxPad_pz = real( Ez .* EAz .* (1./epsOut - 1./eps_) ); % perp-z component
             else
-                dFdxPad_pz = real( (eps - epsOut) .* Ez .* EAz ); % par-z component
+                dFdxPad_pz = real( (eps_ - epsOut) .* Ez .* EAz ); % par-z component
             end
-            dFdxPad_n = real( Dn .* DAn .* (1./epsOut - 1./eps) ); % perp component
+            dFdxPad_n = real( Dn .* DAn .* (1./epsOut - 1./eps_) ); % perp component
             
             dFdxPad = dFdxPad_p + dFdxPad_pz + dFdxPad_n;
             
@@ -1351,7 +1351,7 @@ classdef Spline
         % return nk data for import to Lumerical
         function data = returnData(obj)  
             % FreeForm Binary Import
-            if( (obj.numX>1) && isreal(obj.eps) && isreal(obj.epsOut) )
+            if( (obj.numX>1) && isreal(obj.eps_) && isreal(obj.epsOut) )
                 numY = obj.numY;
                 numX = obj.numX;
                 [xGrid, yGrid] = meshgrid(1:numX, 1:numY);
@@ -1366,7 +1366,7 @@ classdef Spline
                     ind = find(bndIn);
                     x1 = obj.xGrid(ind(1:2:end-1));
                     x2 = obj.xGrid(ind(2:2:end));
-                    % eps center coordinates and square dimensions
+                    % eps_ center coordinates and square dimensions
                     xArr = .5*(x2+x1);
                     yArr = obj.yGrid(1,1);
                     blockSizeArr = x2-x1;
@@ -1398,7 +1398,7 @@ classdef Spline
                             end
                         end
                     end
-                    % eps center coordinates and square dimensions
+                    % eps_ center coordinates and square dimensions
                     xArr = obj.xGrid(1,xArr);
                     yArr = obj.yGrid(yArr,1);
                     blockSizeArr = blockSizeArr*obj.dx;
@@ -1414,11 +1414,11 @@ classdef Spline
                 geo_z = obj.z0;
                 geo_zspan = (obj.numZ-1) * obj.dx;
                 
-                if( ischar(obj.eps) )
+                if( ischar(obj.eps_) )
                     geo_n = 0;
-                    geo_mat = obj.eps;
+                    geo_mat = obj.eps_;
                 else
-                    geo_n = sqrt(obj.eps);
+                    geo_n = sqrt(obj.eps_);
                     geo_mat = '';
                 end
                 if( ischar(obj.epsOut) )
@@ -1433,8 +1433,8 @@ classdef Spline
                 
                 
             % FreeForm importnk Matrix
-            elseif( ~isreal(obj.eps) && ~isreal(obj.epsOut) && ~ischar(obj.eps) && ~ischar(obj.epsOut) )
-                n = sqrt((obj.epsGrid==1)*obj.eps + (obj.epsGrid==0)*obj.epsOut);
+            elseif( ~isreal(obj.eps_) && ~isreal(obj.epsOut) && ~ischar(obj.eps_) && ~ischar(obj.epsOut) )
+                n = sqrt((obj.epsGrid==1)*obj.eps_ + (obj.epsGrid==0)*obj.epsOut);
                 n = n.'; % transpose for Lumerical
                 zVec = [obj.zVec(1),obj.zVec(end)];
                 len = length(zVec);
@@ -1455,11 +1455,11 @@ classdef Spline
             end
             
             %             FreeForm_image Import
-            %             if( ischar(obj.eps) )
+            %             if( ischar(obj.eps_) )
             %                 geo_n = 0;
-            %                 geo_mat = obj.eps;
+            %                 geo_mat = obj.eps_;
             %             else
-            %                 geo_n = sqrt(obj.eps);
+            %                 geo_n = sqrt(obj.eps_);
             %                 geo_mat = '';
             %             end
             %

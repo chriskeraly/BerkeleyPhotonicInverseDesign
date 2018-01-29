@@ -22,8 +22,8 @@ classdef Gradient
         E;
         EA;
         epsBgnd;
-        epsVec; % vector of actual eps values
-        epsOutVec; % vector of actual eps values
+        epsVec; % vector of actual eps_ values
+        epsOutVec; % vector of actual eps_ values
         
         % Derivative matrix
         % size = [numMon, numFreq, numUD, numY, numX]
@@ -149,7 +149,7 @@ classdef Gradient
         
         %% INTERPOLATE FIELDS ONTO GEOMETRY MESH
         % DO NOT AVERAGE FIELDS IN Z, give entire array to the shape
-        % Note that this is also used for eps = {epsx,epsy,epsz}
+        % Note that this is also used for eps_ = {epsx,epsy,epsz}
         % interpolateData(field, x_grid, y_grid)
         function [E] = interpolateData(obj, field, x_grid, y_grid)
             xInt = obj.xGrid;
@@ -296,14 +296,14 @@ classdef Gradient
         
         %% CALCULATE BOUNDARY DERIVATIVES - HELPER
         % Averages dFdx_mfu about the extruded dimension (z-axis)
-        function dFdx_mfu = calcV(obj, epsGrid, Ep, EAp, Dn, DAn, Ez, EAz, pad, eps, epsOut)
-            dFdxPad_p = real( (eps - epsOut) .* Ep .* EAp ); % par component
+        function dFdx_mfu = calcV(obj, epsGrid, Ep, EAp, Dn, DAn, Ez, EAz, pad, eps_, epsOut)
+            dFdxPad_p = real( (eps_ - epsOut) .* Ep .* EAp ); % par component
             if(0*real(obj.epsVec(1))<0)
-                dFdxPad_pz = real( (eps - epsOut)/exp(0*1i*angle(eps)+angle(epsOut)) .* Ez .* EAz ); % z component (metal thin-film)
+                dFdxPad_pz = real( (eps_ - epsOut)/exp(0*1i*angle(eps_)+angle(epsOut)) .* Ez .* EAz ); % z component (metal thin-film)
             else
-                dFdxPad_pz = real( (eps - epsOut) .* Ez .* EAz ); % par-z component
+                dFdxPad_pz = real( (eps_ - epsOut) .* Ez .* EAz ); % par-z component
             end
-            dFdxPad_n = real( Dn .* DAn .* (1./epsOut - 1./eps) ); % perp component
+            dFdxPad_n = real( Dn .* DAn .* (1./epsOut - 1./eps_) ); % perp component
             %absorption = 1/7.57e-10 * 0.5* (2*pi*3e8/836e-9) * 8.85e-12 * imag(obj.epsVec(1)) * (abs(Ep).^2 + abs(Ez).^2 + abs((Dn/obj.epsVec(1))).^2);
             
             dFdxPad = dFdxPad_p + dFdxPad_pz + dFdxPad_n;% + .05*absorption;

@@ -21,9 +21,9 @@ classdef FreeForm
         diagBC; % 0=nothing, 1=symmetric along xy diagonal
         
         %Freeform shape properties
-        eps; % single eps value or 'material name'
-        epsOut; % single eps value or 'material name'
-        epsGrid; % freeform eps matrix (1 = eps, 0 = epsOut)
+        eps_; % single eps_ value or 'material name'
+        epsOut; % single eps_ value or 'material name'
+        epsGrid; % freeform eps_ matrix (1 = eps_, 0 = epsOut)
         maskGrid; % 0s indicate non-designable regions
         
         % Current Shapes
@@ -52,7 +52,7 @@ classdef FreeForm
     
     methods
 
-        function obj = FreeForm(x0, y0, z0, xLengthReal, yLengthReal, dx, thickness, eps, epsOut, xBC, yBC, diagBC, newShapeCreation, newShapeRad, newShapePad, maxMove, maxArea, minPadding, radiusCurv, radiusCurvHard, minDimension, initialShape)
+        function obj = FreeForm(x0, y0, z0, xLengthReal, yLengthReal, dx, thickness, eps_, epsOut, xBC, yBC, diagBC, newShapeCreation, newShapeRad, newShapePad, maxMove, maxArea, minPadding, radiusCurv, radiusCurvHard, minDimension, initialShape)
             obj.x0 = x0;
             obj.y0 = y0;
             obj.z0 = z0;
@@ -79,7 +79,7 @@ classdef FreeForm
                 obj.zVec = z0 + dx*[-1 1];
             end
             
-            obj.eps = eps;
+            obj.eps_ = eps_;
             obj.epsOut = epsOut;
             obj.epsGrid = zeros(obj.numY,obj.numX);
             obj.maskGrid=ones(obj.numY,obj.numX);
@@ -121,12 +121,12 @@ classdef FreeForm
         % z0 is the center z coordinate (meters)
         % thickness of extruded planar geometry (meters)
         % dx is the uniform spacing of epsGrid (meters)
-        % epsGrid is a binary bitmap of permittivity (1 = eps, 0 = epsOut)
-        % eps = relative permittivity or 'Lumerical material name'
+        % epsGrid is a binary bitmap of permittivity (1 = eps_, 0 = epsOut)
+        % eps_ = relative permittivity or 'Lumerical material name'
         % epsOut = relative permittivity or 'Lumerical material name'
-        function [epsGrid, eps, epsOut, x0, y0, z0, dx, thickness] = getGeometry(obj)
+        function [epsGrid, eps_, epsOut, x0, y0, z0, dx, thickness] = getGeometry(obj)
             epsGrid = obj.epsGrid;
-            eps = obj.eps;
+            eps_ = obj.eps_;
             epsOut = obj.epsOut;
             x0 = obj.x0;
             y0 = obj.y0;
@@ -199,7 +199,7 @@ classdef FreeForm
                 r = newShape(3);
                 [xgrid, ygrid] = meshgrid(1:obj.numX, 1:obj.numY);
                 if(obj.epsGrid(y,x)==0)
-                    % Add circle of eps
+                    % Add circle of eps_
                     newEpsGrid = ((xgrid-x).^2 + (ygrid-y).^2) < r^2;
                     obj.epsGrid = obj.epsGrid | newEpsGrid;
                 else
@@ -261,7 +261,7 @@ classdef FreeForm
         %end
         
         %% SET GEOMETRY
-        % takes a binary matrix, 1s = obj.eps, 0s = obj.epsOut
+        % takes a binary matrix, 1s = obj.eps_, 0s = obj.epsOut
         % setGeometry(epsGrid, x_grid, y_grid)
         function obj = setGeometry(obj, epsGrid, x_grid, y_grid)
             if(obj.numY==1)
@@ -322,7 +322,7 @@ classdef FreeForm
                 dFdxSpace = .5*(dFdxSpace + dFdxSpace');
             end
             
-            % Construct mask for adding eps
+            % Construct mask for adding eps_
             radCurv = obj.newShapePad;
             filterSize = 2*(radCurv-1) + 1; % must be ODD
             filterMid = (filterSize+1)/2;
@@ -352,7 +352,7 @@ classdef FreeForm
             minF0 = min(F0);
             F0_arr = repmat(F0,[obj.numY,obj.numX]);
             
-            % Consider circle of eps
+            % Consider circle of eps_
             dFdxSpaceM = dFdxSpace.*repmat(epsGridMask,[1 1 size(dFdxSpace,3)]);
             Fnew = dANew*dFdxSpaceM + F0_arr;
             minFnew = min(Fnew,[],3);
@@ -377,7 +377,7 @@ classdef FreeForm
             end
             
             if(obj.initialShape)
-                % FastShape, add non-circular regions of eps and/or epsOut
+                % FastShape, add non-circular regions of eps_ and/or epsOut
                 dF = sum(dFdxSpace,3);
                 dFmax = max(max(dF));
                 dFmin = max(max(dF));

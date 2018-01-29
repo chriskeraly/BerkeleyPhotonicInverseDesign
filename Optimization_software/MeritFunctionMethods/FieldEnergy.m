@@ -31,7 +31,7 @@ classdef FieldEnergy < Monitor
         % eField, hField are cells of size {numFreqx1}{1x3}
         % eDip, hDip, pos = cell(1x3)[Nx1]
         % Fix to square dipole positions
-        function [F,dip,pos] = calcMerit(obj,eField,hField,grid,eps,eps_pos,powerNorm,freqInd)
+        function [F,dip,pos] = calcMerit(obj,eField,hField,grid,eps_,eps_pos,powerNorm,freqInd)
             
             numFreq = length(freqInd);
             
@@ -45,13 +45,13 @@ classdef FieldEnergy < Monitor
                 
                 if( obj.type == 1 )
                     fieldInt = eInt;
-                    eps=[];
+                    eps_=[];
                 elseif( obj.type == 2 )
                     fieldInt = hInt;
-                    eps=[];
+                    eps_=[];
                 else % type = 3 or 4
                     fieldInt = eInt;
-                    epsI = eps(i,:);
+                    epsI = eps_(i,:);
                     [epsInt,~] = interpFields(obj,epsI,epsI,eps_pos);
                     epsInt = 1/3*( epsInt{1} + epsInt{2} + epsInt{3} );
                     epsInt(imag(epsInt)<.1)=0;
