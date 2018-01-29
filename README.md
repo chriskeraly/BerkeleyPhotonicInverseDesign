@@ -56,7 +56,7 @@ Host BerkeleyOpt
 	Hostname ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com
 	User ec2-user
 	IdentityFile ~/.ssh/keys/mykey.pem
-	```
+```
  
 At this point check if your ssh access is working by typing `ssh BerkeleyOpt` in a terminal. If you connect: Congrats! You are in your new machine.
 
