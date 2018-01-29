@@ -51,11 +51,12 @@ In order to facilitate the setup and use of the software, an Amazon AMI machine 
 You will need an AWS account. Go to the EC2 dashboard and start a machine, in Oregon (this is where the AMI is stored). c4.large is a great starting point, but you can choose much bigger machines if you want. You will have to save the ssh key that is given to you in a safe location (.ssh/keys/ is a nice place), and change the access rights to it: `chmod 400 mykey.pem`. (All this info is given to you if you click `Connect` in the EC2 dashboard, although aws suggests using root, when you should really use ec2-user)
 
 Once your machine is up, I strongly recommend setting up your ssh config file (located at ~/.ssh/config) and adding these lines to it (obviously replacing with the right values for your HostName and Identityfile)
-`
+```
 Host BerkeleyOpt
 	Hostname ec2-xxx-xxx-xxx-xxx.us-west-2.compute.amazonaws.com
 	User ec2-user
-	IdentityFile ~/.ssh/keys/mykey.pem`
+	IdentityFile ~/.ssh/keys/mykey.pem
+	```
  
 At this point check if your ssh access is working by typing `ssh BerkeleyOpt` in a terminal. If you connect: Congrats! You are in your new machine.
 
