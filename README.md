@@ -1,5 +1,8 @@
 # Adjoint Optimization software for Lumerical from UC Berkeley
 
+## New Python implementation here: https://github.com/chriskeraly/lumopt with docs https://lumopt.readthedocs.io/en/latest/
+I strongly recommend you use the python version, which I will be supporting from now on.
+
 ## Intro
 
 This is a matlab implementation of a Continuous Adjoint Optimization method for Lumerical FDTD. This code was developped in the EECS department of UC Berkeley between 2008 and 2013 by sudents in Prof. Eli Yablonovitch's group. It is distributed under the MIT License. 
